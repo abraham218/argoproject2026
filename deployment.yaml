@@ -5,7 +5,12 @@ metadata:
   labels:
     app: nginx
 spec:
-  replicas: 2
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: nginx
@@ -19,6 +24,26 @@ spec:
           image: nginx:latest
           ports:
             - containerPort: 80
+          # Probes ensure zero-downtime during updates
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - name: html-volume
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: html-volume
+          configMap:
+            name: nginx-html-config
 ---
 apiVersion: v1
 kind: Service
