@@ -1,5 +1,25 @@
-# Update the ConfigMap with the new HTML content
+cat deploy.sh
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+echo "🚀 Starting deployment sequence..."
+
+# 1. Update the ConfigMap with the latest index.html content
+echo "📄 Updating ConfigMap from index.html..."
 kubectl create configmap nginx-html-config --from-file=index.html -o yaml --dry-run=client | kubectl apply -f -
 
-# Trigger a zero-downtime rolling update to apply it immediately
+# 2. Apply or update the Deployment and Service manifests
+echo "📦 Applying Kubernetes resources..."
+kubectl apply -f deployment.yaml
+
+# 3. Trigger a rolling restart to force NGINX to pick up the new HTML immediately
+echo "🔄 Triggering a zero-downtime rolling update..."
 kubectl rollout restart deployment/nginx-deployment
+
+# 4. Monitor the rollout status
+echo "👀 Watching rollout progress..."
+kubectl rollout status deployment/nginx-deployment
+
+echo "✅ Success! Your new changes are now live."
