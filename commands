@@ -1,0 +1,5 @@
+# Update the ConfigMap with the new HTML content
+kubectl create configmap nginx-html-config --from-file=index.html -o yaml --dry-run=client | kubectl apply -f -
+
+# Trigger a zero-downtime rolling update to apply it immediately
+kubectl rollout restart deployment/nginx-deployment
