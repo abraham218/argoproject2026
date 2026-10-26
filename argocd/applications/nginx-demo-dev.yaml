@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-demo-dev
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    # TODO: replace with your Git repo URL after you push this project
+    repoURL: https://github.com/<your-username>/argocd-practice-gitops.git
+    targetRevision: main
+    path: apps/nginx-demo/overlays/dev
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nginx-demo-dev
+
+  syncPolicy:
+    automated:
+      prune: true       # delete resources removed from Git
+      selfHeal: true     # revert manual cluster changes back to Git state
+    syncOptions:
+      - CreateNamespace=true

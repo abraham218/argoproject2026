@@ -1,0 +1,15 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: devenv
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # Lets you reach NodePort/Ingress services at localhost without
+      # separately port-forwarding every time (handy for ArgoCD, nginx, etc.)
+      - containerPort: 80
+        hostPort: 8080
+        protocol: TCP
+      - containerPort: 443
+        hostPort: 8443
+        protocol: TCP
+  - role: worker
