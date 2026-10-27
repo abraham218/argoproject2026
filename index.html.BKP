@@ -118,6 +118,11 @@
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--text-muted);
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .ghost-btn {
@@ -236,16 +241,8 @@
           <span class="url">google.com</span>
         </li>
         <li class="link-row">
-          <a href="https://amazon.com" target="_blank" rel="noopener">Amazon</a>
-          <span class="url">amazon.com</span>
-        </li>
-        <li class="link-row">
           <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
           <span class="url">github.com</span>
-        </li>
-        <li class="link-row">
-          <a href="#" target="_blank" rel="noopener">Office Portal</a>
-          <span class="url">replace-with-office-url</span>
         </li>
       </ul>
       <button class="ghost-btn" id="add-link-btn" type="button">+ Add link</button>
@@ -374,6 +371,7 @@
         var span = document.createElement("span");
         span.className = "url";
         span.textContent = l.url.replace(/^https?:\/\//, "");
+        span.title = l.url;
         li.appendChild(a);
         li.appendChild(span);
         list.appendChild(li);
@@ -397,6 +395,7 @@
     var span = document.createElement("span");
     span.className = "url";
     span.textContent = url.replace(/^https?:\/\//, "");
+    span.title = url;
     li.appendChild(a);
     li.appendChild(span);
     document.getElementById("link-list").appendChild(li);

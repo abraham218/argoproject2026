@@ -89,8 +89,8 @@
 
   .link-row {
     display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.55rem 0.65rem;
     border-radius: var(--radius-sm);
     border: 1px solid transparent;
@@ -99,6 +99,14 @@
   .link-row:hover {
     border-color: var(--panel-border);
     background: rgba(255,255,255,0.02);
+  }
+
+  .link-row .link-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
   }
 
   .link-row a {
@@ -125,6 +133,30 @@
     white-space: nowrap;
   }
 
+  .remove-btn {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.25rem 0.4rem;
+    border-radius: var(--radius-sm);
+    opacity: 0;
+    transition: opacity 0.1s ease, color 0.1s ease;
+  }
+
+  .link-row:hover .remove-btn,
+  .remove-btn:focus-visible {
+    opacity: 1;
+  }
+
+  .remove-btn:hover,
+  .remove-btn:focus-visible {
+    color: var(--danger);
+  }
+
   .ghost-btn {
     width: 100%;
     margin-top: 0.9rem;
@@ -144,14 +176,14 @@
     color: var(--accent-link);
   }
 
-  .notes-toolbar {
+  .todo-toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1rem;
   }
 
-  .notes-toolbar h2 {
+  .todo-toolbar h2 {
     font-size: 1.1rem;
     margin: 0;
   }
@@ -163,54 +195,86 @@
 
   .save-status.saving { color: var(--accent-note); }
 
-  details {
+  .todo-input-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .todo-input-row input {
+    flex: 1;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 0.6rem 0.8rem;
+    font-size: 0.92rem;
+    font-family: inherit;
+  }
+
+  .todo-input-row input:focus-visible {
+    outline: 2px solid var(--accent-link);
+    outline-offset: 1px;
+  }
+
+  .todo-input-row button {
+    background: var(--accent-note);
+    border: none;
+    color: #1a1406;
+    font-weight: 600;
+    padding: 0 1.1rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .todo-input-row button:hover,
+  .todo-input-row button:focus-visible {
+    filter: brightness(1.08);
+  }
+
+  .todo-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .todo-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     background: var(--panel);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius-md);
-    margin-bottom: 0.75rem;
-    overflow: hidden;
+    padding: 0.75rem 1rem;
   }
 
-  summary {
+  .todo-item input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--accent-note);
+    flex-shrink: 0;
     cursor: pointer;
-    padding: 0.85rem 1.1rem;
-    font-weight: 600;
-    font-size: 0.95rem;
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
   }
 
-  summary::-webkit-details-marker { display: none; }
-
-  summary::before {
-    content: "▸";
-    color: var(--accent-note);
-    font-size: 0.75rem;
-    transition: transform 0.15s ease;
-  }
-
-  details[open] summary::before {
-    transform: rotate(90deg);
-  }
-
-  .note-body {
-    padding: 0 1.1rem 1.1rem;
+  .todo-item .todo-text {
+    flex: 1;
     font-size: 0.92rem;
-    color: var(--text);
-    outline: none;
-    min-height: 2.5rem;
-    white-space: pre-wrap;
+    word-break: break-word;
   }
 
-  .note-body:empty::before {
-    content: attr(data-placeholder);
+  .todo-item.done .todo-text {
     color: var(--text-muted);
+    text-decoration: line-through;
   }
 
-  .note-body:focus-visible {
-    box-shadow: inset 2px 0 0 var(--accent-note);
+  .todo-empty {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    padding: 0.5rem 0.2rem;
   }
 
   a:focus-visible, button:focus-visible, [contenteditable]:focus-visible {
@@ -228,7 +292,7 @@
 
   <header class="masthead">
     <h1>Abraham’s Ops Notebook</h1>
-    <p>Quick links and running notes, kept in one place.</p>
+    <p>Quick links and a running to-do list, kept in one place.</p>
   </header>
 
   <main class="layout">
@@ -236,45 +300,36 @@
     <aside class="panel">
       <h2>Quick links</h2>
       <ul class="link-list" id="link-list">
-        <li class="link-row">
-          <a href="https://google.com" target="_blank" rel="noopener">Google</a>
-          <span class="url">google.com</span>
+        <li class="link-row" data-static-key="google">
+          <span class="link-text">
+            <a href="https://google.com" target="_blank" rel="noopener">Google</a>
+            <span class="url">google.com</span>
+          </span>
+          <button class="remove-btn" type="button" aria-label="Remove Google">×</button>
         </li>
-        <li class="link-row">
-          <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
-          <span class="url">github.com</span>
+        <li class="link-row" data-static-key="github">
+          <span class="link-text">
+            <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+            <span class="url">github.com</span>
+          </span>
+          <button class="remove-btn" type="button" aria-label="Remove GitHub">×</button>
         </li>
       </ul>
       <button class="ghost-btn" id="add-link-btn" type="button">+ Add link</button>
     </aside>
 
     <section>
-      <div class="notes-toolbar">
-        <h2>Notes</h2>
+      <div class="todo-toolbar">
+        <h2>To-do list</h2>
         <span class="save-status" id="save-status">All changes saved</span>
       </div>
 
-      <div id="notes-container">
-        <details open>
-          <summary>Kubernetes &amp; kind cluster</summary>
-          <div class="note-body" contenteditable="true" data-note-id="k8s"
-               data-placeholder="Click to add notes — cluster config, node setup, troubleshooting steps…"></div>
-        </details>
-
-        <details>
-          <summary>ArgoCD &amp; GitOps</summary>
-          <div class="note-body" contenteditable="true" data-note-id="argocd"
-               data-placeholder="Click to add notes — sync policies, repo connections, app manifests…"></div>
-        </details>
-
-        <details>
-          <summary>General notes</summary>
-          <div class="note-body" contenteditable="true" data-note-id="general"
-               data-placeholder="Click to start typing…"></div>
-        </details>
+      <div class="todo-input-row">
+        <input type="text" id="todo-input" placeholder="Add a task…" aria-label="New task">
+        <button id="todo-add-btn" type="button">Add</button>
       </div>
 
-      <button class="ghost-btn" id="add-section-btn" type="button">+ Add section</button>
+      <ul class="todo-list" id="todo-list"></ul>
     </section>
 
   </main>
@@ -282,9 +337,10 @@
 
 <script>
 (function () {
-  var STORAGE_PREFIX = "ktnotes_";
-  var SECTIONS_KEY = "ktnotes_custom_sections";
   var LINKS_KEY = "ktnotes_custom_links";
+  var HIDDEN_STATIC_KEY = "ktnotes_hidden_static_links";
+  var TODOS_KEY = "ktnotes_todos";
+
   var saveStatus = document.getElementById("save-status");
   var saveTimer = null;
 
@@ -298,61 +354,82 @@
     }, 500);
   }
 
-  function loadNoteBodies() {
-    document.querySelectorAll(".note-body[data-note-id]").forEach(function (el) {
-      var saved = localStorage.getItem(STORAGE_PREFIX + el.dataset.noteId);
-      if (saved !== null) el.textContent = saved;
-    });
+  // ---------- Quick links ----------
+
+  function hideStaticLink(key) {
+    var raw = localStorage.getItem(HIDDEN_STATIC_KEY);
+    var hidden = raw ? JSON.parse(raw) : [];
+    if (hidden.indexOf(key) === -1) hidden.push(key);
+    localStorage.setItem(HIDDEN_STATIC_KEY, JSON.stringify(hidden));
   }
 
-  function attachNoteListeners(root) {
-    root.querySelectorAll(".note-body[data-note-id]").forEach(function (el) {
-      el.addEventListener("input", function () {
-        localStorage.setItem(STORAGE_PREFIX + el.dataset.noteId, el.textContent);
+  function applyHiddenStaticLinks() {
+    var raw = localStorage.getItem(HIDDEN_STATIC_KEY);
+    if (!raw) return;
+    try {
+      var hidden = JSON.parse(raw);
+      hidden.forEach(function (key) {
+        var li = document.querySelector('.link-row[data-static-key="' + key + '"]');
+        if (li) li.remove();
+      });
+    } catch (e) { /* ignore malformed storage */ }
+  }
+
+  function wireStaticRemoveButtons() {
+    document.querySelectorAll('.link-row[data-static-key] .remove-btn').forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var li = btn.closest(".link-row");
+        var key = li.dataset.staticKey;
+        li.remove();
+        hideStaticLink(key);
         markSaving();
       });
     });
   }
 
-  function loadCustomSections() {
-    var raw = localStorage.getItem(SECTIONS_KEY);
+  function removeCustomLink(id) {
+    var raw = localStorage.getItem(LINKS_KEY);
     if (!raw) return;
-    try {
-      var sections = JSON.parse(raw);
-      var container = document.getElementById("notes-container");
-      sections.forEach(function (s) {
-        container.appendChild(buildSection(s.id, s.title));
-      });
-    } catch (e) { /* ignore malformed storage */ }
+    var links = JSON.parse(raw).filter(function (l) { return l.id !== id; });
+    localStorage.setItem(LINKS_KEY, JSON.stringify(links));
   }
 
-  function buildSection(id, title) {
-    var details = document.createElement("details");
-    var summary = document.createElement("summary");
-    summary.textContent = title;
-    var body = document.createElement("div");
-    body.className = "note-body";
-    body.contentEditable = "true";
-    body.dataset.noteId = id;
-    body.dataset.placeholder = "Click to start typing…";
-    details.appendChild(summary);
-    details.appendChild(body);
-    attachNoteListeners(details);
-    loadNoteBodies();
-    return details;
+  function buildLinkRow(id, label, url) {
+    var li = document.createElement("li");
+    li.className = "link-row";
+
+    var textWrap = document.createElement("span");
+    textWrap.className = "link-text";
+
+    var a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = label;
+
+    var span = document.createElement("span");
+    span.className = "url";
+    span.textContent = url.replace(/^https?:\/\//, "");
+    span.title = url;
+
+    textWrap.appendChild(a);
+    textWrap.appendChild(span);
+
+    var removeBtn = document.createElement("button");
+    removeBtn.className = "remove-btn";
+    removeBtn.type = "button";
+    removeBtn.setAttribute("aria-label", "Remove " + label);
+    removeBtn.textContent = "×";
+    removeBtn.addEventListener("click", function () {
+      li.remove();
+      removeCustomLink(id);
+      markSaving();
+    });
+
+    li.appendChild(textWrap);
+    li.appendChild(removeBtn);
+    return li;
   }
-
-  document.getElementById("add-section-btn").addEventListener("click", function () {
-    var title = prompt("Section title:");
-    if (!title) return;
-    var id = "custom_" + Date.now();
-    document.getElementById("notes-container").appendChild(buildSection(id, title));
-
-    var raw = localStorage.getItem(SECTIONS_KEY);
-    var sections = raw ? JSON.parse(raw) : [];
-    sections.push({ id: id, title: title });
-    localStorage.setItem(SECTIONS_KEY, JSON.stringify(sections));
-  });
 
   function renderCustomLinks() {
     var raw = localStorage.getItem(LINKS_KEY);
@@ -361,20 +438,7 @@
       var links = JSON.parse(raw);
       var list = document.getElementById("link-list");
       links.forEach(function (l) {
-        var li = document.createElement("li");
-        li.className = "link-row";
-        var a = document.createElement("a");
-        a.href = l.url;
-        a.target = "_blank";
-        a.rel = "noopener";
-        a.textContent = l.label;
-        var span = document.createElement("span");
-        span.className = "url";
-        span.textContent = l.url.replace(/^https?:\/\//, "");
-        span.title = l.url;
-        li.appendChild(a);
-        li.appendChild(span);
-        list.appendChild(li);
+        list.appendChild(buildLinkRow(l.id, l.label, l.url));
       });
     } catch (e) { /* ignore malformed storage */ }
   }
@@ -385,33 +449,112 @@
     var url = prompt("URL (include https://):");
     if (!url) return;
 
-    var li = document.createElement("li");
-    li.className = "link-row";
-    var a = document.createElement("a");
-    a.href = url;
-    a.target = "_blank";
-    a.rel = "noopener";
-    a.textContent = label;
-    var span = document.createElement("span");
-    span.className = "url";
-    span.textContent = url.replace(/^https?:\/\//, "");
-    span.title = url;
-    li.appendChild(a);
-    li.appendChild(span);
-    document.getElementById("link-list").appendChild(li);
+    var id = "link_" + Date.now();
+    document.getElementById("link-list").appendChild(buildLinkRow(id, label, url));
 
     var raw = localStorage.getItem(LINKS_KEY);
     var links = raw ? JSON.parse(raw) : [];
-    links.push({ label: label, url: url });
+    links.push({ id: id, label: label, url: url });
     localStorage.setItem(LINKS_KEY, JSON.stringify(links));
+    markSaving();
   });
 
-  attachNoteListeners(document);
-  loadCustomSections();
-  loadNoteBodies();
+  // ---------- To-do list ----------
+
+  var todoList = document.getElementById("todo-list");
+
+  function loadTodos() {
+    var raw = localStorage.getItem(TODOS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }
+
+  function saveTodos(todos) {
+    localStorage.setItem(TODOS_KEY, JSON.stringify(todos));
+    markSaving();
+  }
+
+  function renderTodos() {
+    var todos = loadTodos();
+    todoList.innerHTML = "";
+
+    if (todos.length === 0) {
+      var empty = document.createElement("li");
+      empty.className = "todo-empty";
+      empty.textContent = "No tasks yet — add one above.";
+      todoList.appendChild(empty);
+      return;
+    }
+
+    todos.forEach(function (t) {
+      var li = document.createElement("li");
+      li.className = "todo-item" + (t.done ? " done" : "");
+
+      var checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = t.done;
+      checkbox.setAttribute("aria-label", "Mark task done");
+      checkbox.addEventListener("change", function () {
+        var all = loadTodos();
+        var item = all.find(function (x) { return x.id === t.id; });
+        if (item) item.done = checkbox.checked;
+        saveTodos(all);
+        renderTodos();
+      });
+
+      var text = document.createElement("span");
+      text.className = "todo-text";
+      text.textContent = t.text;
+
+      var removeBtn = document.createElement("button");
+      removeBtn.className = "remove-btn";
+      removeBtn.type = "button";
+      removeBtn.setAttribute("aria-label", "Remove task");
+      removeBtn.textContent = "×";
+      removeBtn.style.opacity = "1";
+      removeBtn.addEventListener("click", function () {
+        var all = loadTodos().filter(function (x) { return x.id !== t.id; });
+        saveTodos(all);
+        renderTodos();
+      });
+
+      li.appendChild(checkbox);
+      li.appendChild(text);
+      li.appendChild(removeBtn);
+      todoList.appendChild(li);
+    });
+  }
+
+  function addTodo(text) {
+    var todos = loadTodos();
+    todos.push({ id: "todo_" + Date.now(), text: text, done: false });
+    saveTodos(todos);
+    renderTodos();
+  }
+
+  var todoInput = document.getElementById("todo-input");
+  document.getElementById("todo-add-btn").addEventListener("click", function () {
+    var val = todoInput.value.trim();
+    if (!val) return;
+    addTodo(val);
+    todoInput.value = "";
+    todoInput.focus();
+  });
+
+  todoInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      document.getElementById("todo-add-btn").click();
+    }
+  });
+
+  // ---------- Init ----------
+  applyHiddenStaticLinks();
+  wireStaticRemoveButtons();
   renderCustomLinks();
+  renderTodos();
 })();
 </script>
 
 </body>
 </html>
+
