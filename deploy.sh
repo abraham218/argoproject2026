@@ -22,3 +22,5 @@ echo "👀 Watching rollout progress..."
 kubectl rollout status deployment/nginx-deployment
 
 echo "✅ Success! Your new changes are now live."
+
+kubectl port-forward svc/nginx-service --address 0.0.0.0  80
